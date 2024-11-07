@@ -686,7 +686,7 @@ if __name__ == '__main__':
         (cleaned_thresh, masked_rgb_seg, img_overlay, avg_width, pixel_cm_ratio) = u2net_seg(image_file)
 
         # save masked result image as png format
-        write_image_output(masked_rgb_seg, result_path, basename, '_masked.', extension_type)
+        write_image_output(masked_rgb_seg, result_path, basename, '_masked', extension_type)
 
         # store iteration end timestamp
         end = time.time()
