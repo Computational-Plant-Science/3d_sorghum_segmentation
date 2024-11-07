@@ -1,6 +1,6 @@
-name: DIRT\3d_sorghum_phenotyping
+name: DIRT\3d_sorghum_segmentation
 author: Suxing Liu
-image: docker://computationalplantscience/3D_Sorghum_segmentation
+image: docker://computationalplantscience/3d_sorghum_segmentation
 public: True
 commands: /opt/code/segmentation.sh
 doi:

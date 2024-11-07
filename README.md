@@ -53,13 +53,13 @@ Main pipeline:
 
 ```bash
 
-    git clone https://github.com/Computational-Plant-Science/3D_Sorghum_segmentation.git
+    git clone https://github.com/Computational-Plant-Science/3d_sorghum_segmentation.git
 
 ```
 
    Now you should have a clone of the pipeline source code in your local PC, the folder path was:
 ```
-   /$host_path/3D_Sorghum_segmentation/
+   /$host_path/3d_sorghum_segmentation/
    
     Note: $host_path can be any path chosen by the user. 
 ```
@@ -68,20 +68,20 @@ Main pipeline:
 
    here we use the sample images inside the repo as input, the path was:
 ```
-   /$host_path/3D_Sorghum_segmentation/sample_test/
+   /$host_path/3d_sorghum_segmentation/sample_test/
 ```
 
 3. Main pipeline to compute the segmentation results:
 
 ```bash
 
-   cd /$host_path/3D_Sorghum_segmentation/
+   cd /$host_path/3d_sorghum_segmentation/
 
    
-   python3 /$host_path/3D_Sorghum_segmentation/ai_seg.py -i /$host_path/3D_Sorghum_segmentation/sample_test/ -o /$host_path/3D_Sorghum_segmentation/sample_test/
+   python3 /$host_path/3d_sorghum_segmentation/ai_seg.py -i /$host_path/3d_sorghum_segmentation/sample_test/ -o /$host_path/3d_sorghum_segmentation/sample_test/
 
 ```
-Results will be generated in the output folder by adding "/$host_path/3D_Sorghum_segmentation/sample_test/"
+Results will be generated in the output folder by adding "/$host_path/3d_sorghum_segmentation/sample_test/"
 
 
 
@@ -95,9 +95,9 @@ Results will be generated in the output folder by adding "/$host_path/3D_Sorghum
 
 ```bash
 
-    docker pull computationalplantscience/3D_Sorghum_segmentation
+    docker pull computationalplantscience/3d_sorghum_segmentation
 
-    docker run -v /$path_to_test_image:/images -it computationalplantscience/3D_Sorghum_segmentation
+    docker run -v /$path_to_test_image:/images -it computationalplantscience/3d_sorghum_segmentation
 
 Note: The "/" at the end of the path was NOT needed when mounting a host directory into a Docker container. Above command mount the local directory "/$path_to_test_image" inside the container path "/images"
 Reference: https://docs.docker.com/storage/bind-mounts/
@@ -105,7 +105,7 @@ Reference: https://docs.docker.com/storage/bind-mounts/
 
 For example, to run the sample test inside this repo, under the folder "sample_test", first locate the local path 
 ```
-    docker run -v /$path_to_test_image:/images -it computationalplantscience/3D_Sorghum_segmentation
+    docker run -v /$path_to_test_image:/images -it computationalplantscience/3d_sorghum_segmentation
 ```
 
     then run the mounted input images inside the container:
@@ -114,7 +114,7 @@ For example, to run the sample test inside this repo, under the folder "sample_t
 ```
     or 
 ```
-    docker run -v /$path_to_test_images:/images -it computationalplantscience/3D_Sorghum_segmentation  python3 /opt/code/ai_seg.py -i /images/ -o /images/results/
+    docker run -v /$path_to_test_images:/images -it computationalplantscience/3d_sorghum_segmentation  python3 /opt/code/ai_seg.py -i /images/ -o /images/results/
 ```
 
 2. Build your local container

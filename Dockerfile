@@ -1,6 +1,6 @@
 #Name: Dockerfile
 #Version: 1.0
-#Summary: Docker recipe file for smart pipeline
+#Summary: Docker recipe file 
 #Author: suxing liu
 #Author-email: suxingliu@gmail.com
 #Created: 2024-10-29
