@@ -35,8 +35,7 @@ OUTPUT:
 
 
 # import the necessary packages
-import os
-import glob
+import os, fnmatch, sys, subprocess, glob
 import shutil 
 import pathlib
 from pathlib import Path
@@ -83,6 +82,27 @@ def mkdir(path):
         print ("{} path exists!\n".format(path))
         return False
         
+
+# execute script inside program
+def execute_script(cmd_line):
+    
+    try:
+        #print(cmd_line)
+        #os.system(cmd_line)
+
+        process = subprocess.getoutput(cmd_line)
+        
+        print(process)
+        
+        #process = subprocess.Popen(cmd_line, shell = True, stdout = subprocess.PIPE)
+        #process.wait()
+        #print(process.communicate())
+        
+    except OSError:
+        
+        print("Failed ...!\n")
+
+
 
 
 
@@ -518,10 +538,10 @@ def write_excel_output(trait_file, trait_sum):
     
     if os.path.exists(trait_file):
         
-        print("Result file was saved at {}\n".format(trait_file))
+        print("Ratio file was saved at {}\n".format(trait_file))
         
     else:
-        print("Error in saving Result file\n")
+        print("Error in saving Ratio file\n")
 
 
 
@@ -591,10 +611,10 @@ if __name__ == '__main__':
     # check image file format 
     extension_type = check_file_type(file_path, None)
     
+    print("Input image number: {}, format: {}\n".format(len(files), extension_type))
     
-    print("Input image format: {}\n".format(extension_type))
+    #print("Input image format: {}\n".format(extension_type))
     
-    #print("Input images: {}\n".format(files))
     
     
 
@@ -718,7 +738,28 @@ if __name__ == '__main__':
     write_excel_output(ratio_sum_file, ratio_sum)
 
 
+    #####################################################################################
+    # grants read and write access to all result folders
+    print("Make result files accessible...\n")
 
+    access_grant = "chmod 777 -R " + result_path 
     
-
+    print(access_grant + '\n')
     
+    execute_script(access_grant)
+    
+    #####################################################################################
+    # check image results
+    num_files = len(fnmatch.filter(os.listdir(result_path), "*" + extension_type))
+    
+    if num_files == len(imgList):
+        
+        print("Output image number: {}, path: {}\n".format(num_files, result_path))
+        
+        sys.exit(0)
+        
+    else:
+        
+        print("Error in saving image result file\n")
+        
+        sys.exit(1)

@@ -2,8 +2,8 @@ name: DIRT\3d_sorghum_segmentation
 author: Suxing Liu
 image: docker://computationalplantscience/3d_sorghum_segmentation
 public: True
-commands: /opt/code/segmentation.sh
-doi:
+commands: python3 /opt/code/ai_seg.py -i $INPUT -o $OUTPUT 
+
 
 input:
   kind: directory
