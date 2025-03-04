@@ -462,6 +462,35 @@ def u2net_seg(image_file):
         
         #masked_rgb_seg = cv2.drawContours(masked_rgb_seg, [c], -1, (0, 255, 0), 3)
         
+        '''
+        ################################################################################################
+        # second round segmentation to remove disconnected parts, testing 
+        # PhotoRoom Remove Background API
+        # AI pre-trained model to segment plant object, return mask
+        thresh_seg_refine = remove(masked_rgb_seg, only_mask = True).copy()
+        
+        #find contours and get the external one
+        (contours, hier) = cv2.findContours(thresh_seg_refine, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        
+        if len(contours) > 2:
+            
+            print("{} contours are detected!\n".format(len(contours)))
+            
+        
+            sorted_cntours = sorted(contours, key=cv2.contourArea, reverse=True)
+            
+            # initialize an output mask 
+            mask = np.zeros(cleaned_thresh.shape, dtype="uint8")
+            
+            #mask_refine = cv2.drawContours(mask, sorted_cntours[0], -1, (255, 255, 255), cv2.FILLED)
+            
+            mask_refine = cv2.drawContours(image=mask, contours=[sorted_cntours[0]], contourIdx=-1, color=(255,255,255), thickness=cv2.FILLED)
+        
+            # generate new maksed image result based on refined mask
+            masked_rgb_seg = cv2.bitwise_and(masked_rgb_seg, masked_rgb_seg, mask = mask_refine)
+        '''
+        
+    #return mask_refine, masked_rgb_seg, img_overlay, avg_width, pixel_cm_ratio
 
     return cleaned_thresh, masked_rgb_seg, img_overlay, avg_width, pixel_cm_ratio
         
@@ -582,6 +611,32 @@ def check_file_type(image_folder_path, allowed_extensions=None):
     return extension_type
 
 
+def convert_size(size_bytes):
+    """Convert bytes to human readable format."""
+    for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+        if size_bytes < 1024:
+            return f"{size_bytes:.2f} {unit}"
+        size_bytes /= 1024
+    return f"{size_bytes:.2f} PB"
+
+
+
+# Get sizes of all files in a directory
+def get_directory_sizes(path):
+
+    file_sizes = {}
+    
+    for entry in os.scandir(path):
+        if entry.is_file():
+            try:
+                file_sizes[entry.name] = entry.stat().st_size
+            except OSError as e:
+                print(f"Error accessing {entry.name}: {e}")
+    
+    return file_sizes
+
+
+
 
 if __name__ == '__main__':
     
@@ -591,6 +646,7 @@ if __name__ == '__main__':
     ap.add_argument("-o", "--output_path", dest = "output_path", type = str, required = False,    help = "result path")
     ap.add_argument('-min', '--min_size', dest = "min_size", type = int, required = False, default = 1600,  help = 'min size of object to be segmented.')
     ap.add_argument('-max', '--max_size', dest = "max_size", type = int, required = False, default = 1000000,  help = 'max size of object to be segmented.')
+    ap.add_argument('-ni', '--number_images', dest = "number_images", type = int, required = False, default = 240,  help = 'Number of images in the folder')
     args = vars(ap.parse_args())
     
 
@@ -606,20 +662,74 @@ if __name__ == '__main__':
     files = [f for fs in [glob.glob(pattern) for pattern in patterns] for f in fs]
     
 
-    
+    number_images = args['number_images']
     
     # check image file format 
-    extension_type = check_file_type(file_path, None)
+    #extension_type = check_file_type(file_path, None)
     
-    print("Input image number: {}, format: {}\n".format(len(files), extension_type))
+    #print("Input image number: {}, format: {}\n".format(len(files), extension_type))
     
     #print("Input image format: {}\n".format(extension_type))
     
+    # check input folder contains enough number of images
+    if len(files) > int(number_images * 0.8):
+        
+        # check image file format 
+        extension_type = check_file_type(file_path, None)
+        
+        print("Number of input images: {}, Image format: {}\n".format(len(files), extension_type))
+        
+
+        # check image file size to capture 0 byte files
+        # Create a list of files in directory along with the size
+        sizes = get_directory_sizes(file_path)
+        
+        # find all files of zero in size   
+        zero_in_folder = []
+        
+        for idx, (filename, size) in enumerate(sizes.items()):
+            
+            print(f"{idx} {filename}: {convert_size(size)}")
+            
+            if size == 0:
+                
+                zero_in_folder.append(idx)
+        
+        #print(zero_in_folder)
+        
+        # remove all files with size zero
+        if len(zero_in_folder) > 0 :
+            
+            for idx in zero_in_folder:
+
+                print("Removing file {}".format(files[idx]))
+                os.remove(files[idx])
+        
+            # remove all the files of size zero by index list
+            files_updated = [i for j, i in enumerate(files) if j not in zero_in_folder]
+        else:
+            
+            files_updated = files
+            
+        # check again the number of images
+        if len(files_updated) > int(number_images * 0.8):
+            
+            print("Updated Number of input images: {}\n".format(len(files_updated)))
+        else:
+            
+            print("Input folder was empty or does not contain enough number of images...\n")
+            sys.exit(1)
+
+    else:
+        
+        print("Input folder was empty or does not contain enough number of images...\n")
+        
+        sys.exit(1)
     
     
 
 
-    
+    # define output path
     if args["output_path"] is None:
 
         # result path
@@ -636,21 +746,15 @@ if __name__ == '__main__':
     # print out result path
     print("results_folder: {}\n".format(result_path))
 
-    '''
-    #########################################################################
-    # scan the folder to remove the 0 size image
-    for image_id, image_file in enumerate(imgList):
-        try:
-            image = Image.open(image_file)
-        except PIL.UnidentifiedImageError as e:
-            print(f"Error in file {image_file}: {e}")
-            os.remove(image_file)
-            print(f"Removed file {image_file}")
-    '''
+
+
+
     ############################################################################
     #accquire image file list after remove error images
-    imgList = sorted(files)
+    imgList = sorted(files_updated)
 
+
+    #print(len(imgList))
 
     ########################################################################
     # parameters
@@ -658,28 +762,6 @@ if __name__ == '__main__':
     args_max_size = args['max_size']
 
 
-
-    '''
-    if args_parallel == 1:
-        # Parallel processing
-        #################################################################################
-        import psutil
-        from multiprocessing import Pool
-        from contextlib import closing
-
-        # parallel processing
-        # get cpu number for parallel processing
-        agents = psutil.cpu_count() - 2
-
-        print("Using {0} cores to perform parallel processing... \n".format(int(agents)))
-
-        # Create a pool of processes. By default, one is created for each CPU in the machine.
-        with closing(Pool(processes=agents)) as pool:
-            result = pool.map(batch_process, imgList)
-            pool.terminate()
-
-    else:
-    '''
     #########################################################################
     # analysis pipeline
     # loop execute
@@ -693,7 +775,7 @@ if __name__ == '__main__':
     # save result as an excel file
     ratio_sum = []
     
-
+    '''
     for image_id, image_file in enumerate(imgList):
         # store iteration start timestamp
         start = time.time()
@@ -704,9 +786,15 @@ if __name__ == '__main__':
 
         # main pipeline to perform the segmentation based on u2net and color clustering
         (cleaned_thresh, masked_rgb_seg, img_overlay, avg_width, pixel_cm_ratio) = u2net_seg(image_file)
-
+        
+        
         # save masked result image as png format
         write_image_output(masked_rgb_seg, result_path, basename, '_masked', extension_type)
+        
+        #write_image_output(cleaned_thresh, result_path, basename, '_cleaned_thresh', extension_type)
+        
+        #write_image_output(img_overlay, result_path, basename, '_img_overlay', extension_type)
+        
 
         # store iteration end timestamp
         end = time.time()
@@ -718,26 +806,17 @@ if __name__ == '__main__':
         
         ratio_sum.append([filename, avg_width, pixel_cm_ratio])
         
-        '''
-        ################################################################
-        # save marker detection results
-        result_file = (marker_path + basename + '_md.' + ext)
-        
-        print("Saving file '{} '...\n".format(result_file))
-        
-        cv2.imwrite(result_file, img_overlay)
-        ################################################################
-        '''
-        
-        
-
-    
     
     ratio_sum_file = (result_path + 'unit.xlsx')
 
     write_excel_output(ratio_sum_file, ratio_sum)
+    '''
 
 
+
+
+
+    '''
     #####################################################################################
     # grants read and write access to all result folders
     print("Make result files accessible...\n")
@@ -747,6 +826,7 @@ if __name__ == '__main__':
     print(access_grant + '\n')
     
     execute_script(access_grant)
+    
     
     #####################################################################################
     # check image results
@@ -763,3 +843,4 @@ if __name__ == '__main__':
         print("Error in saving image result file\n")
         
         sys.exit(1)
+    '''

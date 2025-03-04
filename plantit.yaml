@@ -32,7 +32,12 @@ params:
     step: 1
     min: 500000
     max: 2000000
-
+  - name: number_images
+    type: number
+    default: 240
+    step: 1
+    min: 120
+    max: 500
 
 env:
   - LC_ALL=C.UTF-8
