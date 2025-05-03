@@ -775,7 +775,7 @@ if __name__ == '__main__':
     # save result as an excel file
     ratio_sum = []
     
-    '''
+    
     for image_id, image_file in enumerate(imgList):
         # store iteration start timestamp
         start = time.time()
@@ -810,7 +810,7 @@ if __name__ == '__main__':
     ratio_sum_file = (result_path + 'unit.xlsx')
 
     write_excel_output(ratio_sum_file, ratio_sum)
-    '''
+    
 
 
 

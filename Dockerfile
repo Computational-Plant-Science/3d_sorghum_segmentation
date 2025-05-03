@@ -11,7 +11,7 @@
 #cd /opt/code/
 #python3 /opt/code/ai_seg.py -i /input/ -o /output/
 
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 LABEL maintainer='Suxing Liu, Wes Bonelli'
 
@@ -52,6 +52,7 @@ RUN pip3 install numpy \
     natsort \
     pathlib \
     kmeans1d \
+    onnxruntime \
     rembg
 
 
