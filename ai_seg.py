@@ -671,8 +671,11 @@ if __name__ == '__main__':
     
     #print("Input image format: {}\n".format(extension_type))
     
+    
+    
+    
     # check input folder contains enough number of images
-    if len(files) > int(number_images * 0.8):
+    if len(files) > int(number_images * 0.1):
         
         # check image file format 
         extension_type = check_file_type(file_path, None)
@@ -712,7 +715,7 @@ if __name__ == '__main__':
             files_updated = files
             
         # check again the number of images
-        if len(files_updated) > int(number_images * 0.8):
+        if len(files_updated) > int(number_images * 0.1):
             
             print("Updated Number of input images: {}\n".format(len(files_updated)))
         else:
@@ -816,7 +819,7 @@ if __name__ == '__main__':
 
 
 
-    '''
+    
     #####################################################################################
     # grants read and write access to all result folders
     print("Make result files accessible...\n")
@@ -830,8 +833,12 @@ if __name__ == '__main__':
     
     #####################################################################################
     # check image results
-    num_files = len(fnmatch.filter(os.listdir(result_path), "*" + extension_type))
+    n_output = len(fnmatch.filter(os.listdir(result_path), "*" + extension_type))
     
+    print("Output image number: {}, path: {}\n".format(n_output, result_path))
+    
+    
+    '''
     if num_files == len(imgList):
         
         print("Output image number: {}, path: {}\n".format(num_files, result_path))
